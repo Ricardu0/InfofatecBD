@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
+import ChatbotFAB from '../../../frontend/components/ChatbotFAB';
 
 export default function Index() {
   const { isDark, toggleTheme, fadeAnim } = useTheme();
@@ -68,74 +69,85 @@ export default function Index() {
   };
 
   return (
-    <Animated.View style={[styles.container, { backgroundColor: animatedTheme.container }]}>
-      <View style={styles.headerContainer}>
-        <Animated.Text style={[styles.header, { color: animatedTheme.header }]}>
-          InfoFatec
-        </Animated.Text>
-        <TouchableOpacity
-          style={styles.themeButton}
-          onPress={toggleTheme}
-          activeOpacity={0.7}
-        >
-          <Ionicons
-            name={isDark ? 'sunny' : 'moon'}
-            size={22}
-            color={isDark ? '#fbbf24' : '#3b82f6'}
-          />
-        </TouchableOpacity>
-      </View>
+    <View style={styles.mainContainer}>
+      <Animated.View style={[styles.container, { backgroundColor: animatedTheme.container }]}>
+        <View style={styles.headerContainer}>
+          <Animated.Text style={[styles.header, { color: animatedTheme.header }]}>
+            InfoFatec
+          </Animated.Text>
+          <TouchableOpacity
+            style={styles.themeButton}
+            onPress={toggleTheme}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name={isDark ? 'sunny' : 'moon'}
+              size={22}
+              color={isDark ? '#fbbf24' : '#3b82f6'}
+            />
+          </TouchableOpacity>
+        </View>
 
-      {/* Seção de Boas-vindas */}
-      <Animated.View style={[styles.welcomeSection, { backgroundColor: animatedTheme.card, borderColor: animatedTheme.cardBorder }]}>
-        <Animated.Text style={[styles.welcomeTitle, { color: animatedTheme.header }]}>
-          Seja bem-vindo! 👋
-        </Animated.Text>
-        <Animated.Text style={[styles.welcomeText, { color: animatedTheme.text }]}>
-          Bem-vindo ao sistema informacional da FATEC Cotia. Clique abaixo para conhecer mais sobre nossa instituição!
-        </Animated.Text>
-      </Animated.View>
+        {/* Seção de Boas-vindas */}
+        <Animated.View style={[styles.welcomeSection, { backgroundColor: animatedTheme.card, borderColor: animatedTheme.cardBorder }]}>
+          <Animated.Text style={[styles.welcomeTitle, { color: animatedTheme.header }]}>
+            Seja bem-vindo! 👋
+          </Animated.Text>
+          <Animated.Text style={[styles.welcomeText, { color: animatedTheme.text }]}>
+            Bem-vindo ao sistema informacional da FATEC Cotia. Clique abaixo para conhecer mais sobre nossa instituição!
+          </Animated.Text>
+        </Animated.View>
 
-      <View style={styles.list}>
-        {menuItems.map((item, index) => (
-          <Link key={index} href={item.href} asChild>
-            <TouchableOpacity activeOpacity={0.8}>
-              <Animated.View
-                style={[
-                  styles.item,
-                  {
-                    backgroundColor: animatedTheme.card,
-                    borderColor: animatedTheme.cardBorder,
-                  },
-                ]}
-              >
+        <View style={styles.list}>
+          {menuItems.map((item, index) => (
+            <Link key={index} href={item.href} asChild>
+              <TouchableOpacity activeOpacity={0.8}>
                 <Animated.View
                   style={[
-                    styles.indicator,
+                    styles.item,
                     {
-                      backgroundColor: fadeAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [item.colorLight, item.colorDark],
-                      }),
+                      backgroundColor: animatedTheme.card,
+                      borderColor: animatedTheme.cardBorder,
                     },
                   ]}
-                />
-                <Animated.Text style={[styles.title, { color: animatedTheme.text }]}>
-                  {item.title}
-                </Animated.Text>
-                <Animated.Text style={[styles.arrow, { color: animatedTheme.arrow }]}>
-                  ›
-                </Animated.Text>
-              </Animated.View>
-            </TouchableOpacity>
-          </Link>
-        ))}
+                >
+                  <Animated.View
+                    style={[
+                      styles.indicator,
+                      {
+                        backgroundColor: fadeAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [item.colorLight, item.colorDark],
+                        }),
+                      },
+                    ]}
+                  />
+                  <Animated.Text style={[styles.title, { color: animatedTheme.text }]}>
+                    {item.title}
+                  </Animated.Text>
+                  <Animated.Text style={[styles.arrow, { color: animatedTheme.arrow }]}>
+                    ›
+                  </Animated.Text>
+                </Animated.View>
+              </TouchableOpacity>
+            </Link>
+          ))}
+        </View>
+      </Animated.View>
+
+      {/* Chatbot FAB posicionado no canto inferior direito */}
+      <View style={styles.chatbotContainer}>
+        <ChatbotFAB />
       </View>
-    </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    position: 'relative', // Importante para o posicionamento absoluto do chatbot
+  },
   container: {
     flex: 1,
     paddingTop: 60,
@@ -222,5 +234,11 @@ const styles = StyleSheet.create({
   arrow: {
     fontSize: 26,
     fontWeight: '200',
+  },
+  chatbotContainer: {
+    position: 'absolute',
+    bottom: 30, // Distância do fundo da tela
+    right: 20,  // Distância da direita da tela
+    zIndex: 1000, // Para garantir que fique acima de outros elementos
   },
 });
