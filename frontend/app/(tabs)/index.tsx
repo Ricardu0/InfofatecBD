@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
@@ -11,32 +11,47 @@ export default function Index() {
     { 
       title: 'Cultura', 
       href: '/(stack)/cultura', 
-      colorLight: '#ff6b6b',
-      colorDark: '#4fc3f7'
+      colorLight: '#ff5100ff',
+      colorDark: '#fceb00ff',
+      bgLight: 'rgba(255, 81, 0, 0.1)',
+      bgDark: 'rgba(252, 235, 0, 0.1)',
+      icon: 'theater-outline'
     },
     { 
       title: 'Educação', 
       href: '/(stack)/educacao', 
-      colorLight: '#ffa726',
-      colorDark: '#7c4dff'
+      colorLight: '#86fa02ff',
+      colorDark: '#00ff00ff',
+      bgLight: 'rgba(134, 250, 2, 0.1)',
+      bgDark: 'rgba(0, 255, 0, 0.1)',
+      icon: 'school-outline'
     },
     { 
       title: 'Empregos', 
       href: '/(stack)/empregos', 
-      colorLight: '#ff7043',
-      colorDark: '#00bcd4'
+      colorLight: '#00fff2ff',
+      colorDark: '#0b7e8dff',
+      bgLight: 'rgba(0, 255, 242, 0.1)',
+      bgDark: 'rgba(11, 126, 141, 0.1)',
+      icon: 'briefcase-outline'
     },
     { 
       title: 'Segurança', 
       href: '/(stack)/seguranca', 
-      colorLight: '#ec407a',
-      colorDark: '#26c6da'
+      colorLight: '#ad29c7ff',
+      colorDark: '#7700ffff',
+      bgLight: 'rgba(173, 41, 199, 0.1)',
+      bgDark: 'rgba(119, 0, 255, 0.1)',
+      icon: 'shield-checkmark-outline'
     },
     { 
       title: 'Sobre', 
       href: '/(stack)/aboutme', 
-      colorLight: '#fd00e8ff',
-      colorDark: '#26c6da'
+      colorLight: '#fa4bb1ff',
+      colorDark: '#ff49c8ff',
+      bgLight: 'rgba(250, 75, 177, 0.1)',
+      bgDark: 'rgba(255, 73, 200, 0.1)',
+      icon: 'information-circle-outline'
     },
   ];
 
@@ -66,15 +81,28 @@ export default function Index() {
       inputRange: [0, 1],
       outputRange: ['#b0b0b0', '#555555'],
     }),
+    subtext: fadeAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['#666666', '#a0a0a0'],
+    }),
   };
 
   return (
     <View style={styles.mainContainer}>
-      <Animated.View style={[styles.container, { backgroundColor: animatedTheme.container }]}>
+      <Animated.ScrollView 
+        style={[styles.container, { backgroundColor: animatedTheme.container }]}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.headerContainer}>
-          <Animated.Text style={[styles.header, { color: animatedTheme.header }]}>
-            InfoFatec
-          </Animated.Text>
+          <View>
+            <Animated.Text style={[styles.header, { color: animatedTheme.header }]}>
+              InfoFatec
+            </Animated.Text>
+            <Animated.Text style={[styles.subtitle, { color: animatedTheme.subtext }]}>
+              FATEC Cotia
+            </Animated.Text>
+          </View>
           <TouchableOpacity
             style={styles.themeButton}
             onPress={toggleTheme}
@@ -90,9 +118,14 @@ export default function Index() {
 
         {/* Seção de Boas-vindas */}
         <Animated.View style={[styles.welcomeSection, { backgroundColor: animatedTheme.card, borderColor: animatedTheme.cardBorder }]}>
-          <Animated.Text style={[styles.welcomeTitle, { color: animatedTheme.header }]}>
-            Seja bem-vindo! 👋
-          </Animated.Text>
+          <View style={styles.welcomeHeader}>
+            <View style={styles.emojiContainer}>
+              <Text style={styles.emoji}>👋</Text>
+            </View>
+            <Animated.Text style={[styles.welcomeTitle, { color: animatedTheme.header }]}>
+              Seja bem-vindo!
+            </Animated.Text>
+          </View>
           <Animated.Text style={[styles.welcomeText, { color: animatedTheme.text }]}>
             Bem-vindo ao sistema informacional da FATEC Cotia. Clique abaixo para conhecer mais sobre nossa instituição!
           </Animated.Text>
@@ -111,29 +144,54 @@ export default function Index() {
                     },
                   ]}
                 >
-                  <Animated.View
-                    style={[
-                      styles.indicator,
-                      {
-                        backgroundColor: fadeAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [item.colorLight, item.colorDark],
-                        }),
-                      },
-                    ]}
+                  <View style={styles.itemContent}>
+                    <Animated.View
+                      style={[
+                        styles.iconContainer,
+                        {
+                          backgroundColor: fadeAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [item.bgLight, item.bgDark],
+                          }),
+                        },
+                      ]}
+                    >
+                      <Ionicons
+                        name={item.icon}
+                        size={24}
+                        color={isDark ? item.colorDark : item.colorLight}
+                      />
+                    </Animated.View>
+                    
+                    <View style={styles.textContent}>
+                      <Animated.Text style={[styles.title, { color: animatedTheme.text }]}>
+                        {item.title}
+                      </Animated.Text>
+                      <Animated.View
+                        style={[
+                          styles.indicator,
+                          {
+                            backgroundColor: fadeAnim.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: [item.colorLight, item.colorDark],
+                            }),
+                          },
+                        ]}
+                      />
+                    </View>
+                  </View>
+                  
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={isDark ? '#666666' : '#999999'}
                   />
-                  <Animated.Text style={[styles.title, { color: animatedTheme.text }]}>
-                    {item.title}
-                  </Animated.Text>
-                  <Animated.Text style={[styles.arrow, { color: animatedTheme.arrow }]}>
-                    ›
-                  </Animated.Text>
                 </Animated.View>
               </TouchableOpacity>
             </Link>
           ))}
         </View>
-      </Animated.View>
+      </Animated.ScrollView>
 
       {/* Chatbot FAB posicionado no canto inferior direito */}
       <View style={styles.chatbotContainer}>
@@ -146,11 +204,14 @@ export default function Index() {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    position: 'relative', // Importante para o posicionamento absoluto do chatbot
+    position: 'relative',
   },
   container: {
     flex: 1,
+  },
+  scrollContent: {
     paddingTop: 60,
+    paddingBottom: 100, // Espaço extra para o chatbot FAB
   },
   headerContainer: {
     flexDirection: 'row',
@@ -160,9 +221,16 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   header: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '700',
     letterSpacing: -0.8,
+  },
+  subtitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: 2,
+    letterSpacing: 0.2,
+    opacity: 0.7,
   },
   themeButton: {
     width: 42,
@@ -186,11 +254,21 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  welcomeTitle: {
+  welcomeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  emojiContainer: {
+    marginRight: 10,
+  },
+  emoji: {
     fontSize: 24,
+  },
+  welcomeTitle: {
+    fontSize: 22,
     fontWeight: '700',
     letterSpacing: -0.5,
-    marginBottom: 10,
   },
   welcomeText: {
     fontSize: 15,
@@ -200,45 +278,53 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: 20,
-    gap: 14,
   },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 18,
+    justifyContent: 'space-between',
+    padding: 16,
     borderRadius: 18,
     borderWidth: 1,
-    backdropFilter: 'blur(10px)',
+    marginBottom: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 2,
   },
-  indicator: {
-    width: 3.5,
-    height: 32,
-    borderRadius: 2,
-    marginRight: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+  itemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  textContent: {
+    flex: 1,
+    justifyContent: 'center',
   },
   title: {
-    flex: 1,
     fontSize: 17,
     fontWeight: '600',
     letterSpacing: -0.2,
+    marginBottom: 6,
   },
-  arrow: {
-    fontSize: 26,
-    fontWeight: '200',
+  indicator: {
+    width: 36,
+    height: 3,
+    borderRadius: 2,
   },
   chatbotContainer: {
     position: 'absolute',
-    bottom: 30, // Distância do fundo da tela
-    right: 20,  // Distância da direita da tela
-    zIndex: 1000, // Para garantir que fique acima de outros elementos
+    bottom: 30,
+    right: 20,
+    zIndex: 1000,
   },
 });

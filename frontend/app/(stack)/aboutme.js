@@ -74,10 +74,10 @@ export default function AboutMeScreen() {
   ];
 
   const skills = [
-    { name: 'React Native', level: 90, color: '#61dafb' },
-    { name: 'JavaScript', level: 85, color: '#f7df1e' },
-    { name: 'Python', level: 80, color: '#3776ab' },
-    { name: 'UI/UX Design', level: 75, color: '#ff6b6b' },
+    { name: 'React Native', level: 'Avançado', color: '#61dafb', dots: 4 },
+    { name: 'JavaScript', level: 'Avançado', color: '#f7df1e', dots: 4 },
+    { name: 'Python', level: 'Intermediário', color: '#3776ab', dots: 3 },
+    { name: 'UI/UX Design', level: 'Intermediário', color: '#ff6b6b', dots: 3 },
   ];
 
   if (loading) {
@@ -112,7 +112,7 @@ export default function AboutMeScreen() {
         >
           <View style={styles.imageContainer}>
             <Image
-              source={ require('../components/image.png')}
+              source={require('../components/image.png')}
               style={styles.profileImage}
             />
             <View style={styles.statusBadge}>
@@ -146,7 +146,7 @@ export default function AboutMeScreen() {
             de Software Multiplataforma na FATEC. Busco constantemente aprender novas 
             tecnologias e aplicar conhecimentos em projetos práticos que gerem impacto 
             real. Experiência em desenvolvimento mobile, web e interesse especial em 
-            UX/UI Design e análise de daods.
+            UX/UI Design e análise de dados.
           </Text>
         </View>
 
@@ -168,23 +168,29 @@ export default function AboutMeScreen() {
                 <Text style={[styles.skillName, { color: theme.text }]}>
                   {skill.name}
                 </Text>
-                <Text style={[styles.skillPercent, { color: theme.textSecondary }]}>
-                  {skill.level}%
+                <Text style={[
+                  styles.skillLevel, 
+                  { 
+                    color: skill.color,
+                    fontWeight: '700'
+                  }
+                ]}>
+                  {skill.level}
                 </Text>
               </View>
-              <View style={[
-                styles.skillBar,
-                { backgroundColor: isDark ? '#2a2a2a' : '#f0f0f0' }
-              ]}>
-                <View 
-                  style={[
-                    styles.skillProgress,
-                    { 
-                      width: `${skill.level}%`,
-                      backgroundColor: skill.color
-                    }
-                  ]}
-                />
+              <View style={styles.dotsContainer}>
+                {[...Array(5)].map((_, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.dot,
+                      {
+                        backgroundColor: i < skill.dots ? skill.color : (isDark ? '#2a2a2a' : '#e0e0e0'),
+                        transform: [{ scale: i < skill.dots ? 1 : 0.8 }]
+                      }
+                    ]}
+                  />
+                ))}
               </View>
             </View>
           ))}
@@ -357,24 +363,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   skillName: {
     fontSize: 16,
     fontWeight: '600',
   },
-  skillPercent: {
-    fontSize: 14,
-    fontWeight: '500',
+  skillLevel: {
+    fontSize: 13,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  skillBar: {
-    height: 10,
-    borderRadius: 5,
-    overflow: 'hidden',
+  dotsContainer: {
+    flexDirection: 'row',
+    gap: 8,
   },
-  skillProgress: {
-    height: '100%',
-    borderRadius: 5,
+  dot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
   },
   linksContainer: {
     flexDirection: 'row',

@@ -1,4 +1,3 @@
-// components/ChatbotModal.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -34,7 +33,7 @@ export default function ChatbotModal({ visible, onClose }: ChatbotModalProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      text: 'Olá! Sou o EduAssist, seu assistente para recomendação de cursos. Posso ajudar você a encontrar cursos baseados em seus interesses, objetivos de carreira ou áreas de estudo. Por onde gostaria de começar?',
+      text: 'Olá! 👋 Sou o EduAssist, seu assistente inteligente sobre a Fatec Cotia. Posso te ajudar com:\n\n📚 **Cursos** - informações detalhadas\n🎓 **Educação** - orientação acadêmica\n💼 **Empregos** - oportunidades de carreira\n🛡️ **Segurança** - dicas e políticas\n🎭 **Cultura** - eventos e comunidade\n\nPor onde gostaria de começar?',
       isUser: false,
       timestamp: new Date(),
     },
@@ -44,11 +43,11 @@ export default function ChatbotModal({ visible, onClose }: ChatbotModalProps) {
   const flatListRef = useRef<FlatList>(null);
   const slideAnim = useRef(new Animated.Value(300)).current;
 
-  // Configuração da API corrigida
+  // Configuração da API
   const API_CONFIG = {
     url: 'https://openrouter.ai/api/v1/chat/completions',
-    apiKey: 'sua chave aqui! api key here!',
-    model: 'meta-llama/llama-3.3-70b-instruct:free', // Modelo corrigido
+    apiKey: 'sk-or-v1-YOUR_API_KEY',
+    model: 'meta-llama/llama-3.3-70b-instruct:free',
   };
 
   // Cores animadas
@@ -98,6 +97,43 @@ export default function ChatbotModal({ visible, onClose }: ChatbotModalProps) {
     scrollToBottom();
   }, [messages]);
 
+  // Sistema de Intents (categorização inteligente)
+  const detectIntent = (userMessage: string): string => {
+    const lowercaseMsg = userMessage.toLowerCase();
+
+    // Cursos
+    if (/curso|graduação|estudo|programação|desenvolvimento|dados|design|gestão|comércio/i.test(lowercaseMsg)) {
+      return 'cursos';
+    }
+
+    // Educação e Acadêmico
+    if (/vestibular|inscrição|ingresso|disciplina|professor|nota|semestre|matéria|avaliação/i.test(lowercaseMsg)) {
+      return 'educacao';
+    }
+
+    // Empregos e Carreira
+    if (/emprego|carreira|trabalho|profissão|mercado|salário|oportunidade|estágio|linkedin/i.test(lowercaseMsg)) {
+      return 'empregos';
+    }
+
+    // Segurança
+    if (/segurança|senha|login|autenticação|privacidade|proteção|dados|vírus|malware|safe|antivírus/i.test(lowercaseMsg)) {
+      return 'seguranca';
+    }
+
+    // Cultura e Comunidade
+    if (/evento|festa|comunidade|clube|grupo|amigo|atividade|cultural|show|palestra/i.test(lowercaseMsg)) {
+      return 'cultura';
+    }
+
+    // Informações Gerais
+    if (/contato|telefone|endereço|horário|localização|como chegar|email/i.test(lowercaseMsg)) {
+      return 'info_geral';
+    }
+
+    return 'geral';
+  };
+
   const sendMessage = async () => {
     if (!inputText.trim() || isLoading) return;
 
@@ -113,13 +149,182 @@ export default function ChatbotModal({ visible, onClose }: ChatbotModalProps) {
     setIsLoading(true);
 
     try {
-      // Preparar o histórico de mensagens no formato correto
+      const intent = detectIntent(inputText);
+
+      // Preparar o histórico de mensagens
       const chatHistory = messages.map(msg => ({
         role: msg.isUser ? 'user' : 'assistant',
         content: msg.text
       }));
 
-      // Corrigindo a chamada API conforme a estrutura fornecida
+      const systemPrompt = `Você é EduAssist, um assistente inteligente e amigável da Fatec Cotia (Faculdade de Tecnologia de Cotia), instituição pública de ensino superior vinculada ao Centro Paula Souza (Governo de SP).
+
+PERSONALIDADE:
+- Sempre responda em português brasileiro
+- Seja entusiasmado, mas profissional
+- Use emojis adequados para melhorar a experiência
+- Divida respostas longas em tópicos claros
+- Sempre ofereça próximas ações ou perguntas relacionadas
+
+ESCOPO DE ATUAÇÃO - RESPONDA SOBRE TODOS ESSES ASPECTOS:
+
+═══════════════════════════════════════════
+
+1️⃣ **CURSOS DISPONÍVEIS:**
+
+**Desenvolvimento de Software Multiplataforma (DSM)**
+- Período: Noite | Duração: 3 anos (6 semestres)
+- Foco: Web Full-Stack (JS/React), Mobile (React Native), Desktop, APIs REST, DevOps
+- Tecnologias: JavaScript, TypeScript, Node.js, React, React Native, Python, SQL, MongoDB, Docker
+- Carreira: Desenvolvedor Full-Stack, Frontend/Backend Engineer, Mobile Developer, Arquiteto de Software
+
+**Ciência de Dados (CD)**
+- Período: Noite | Duração: 3 anos (6 semestres)
+- Foco: Machine Learning, Big Data, Inteligência Artificial, Análise Preditiva
+- Tecnologias: Python, R, TensorFlow, Scikit-learn, SQL, Spark, Pandas, Numpy
+- Carreira: Data Scientist, ML Engineer, Business Analyst, Data Engineer
+
+**Gestão Empresarial (GE)**
+- Modalidades: Presencial (Manhã) e EaD
+- Duração: 3 anos (6 semestres)
+- Foco: Administração, RH, Marketing, Finanças, Logística, Empreendedorismo
+- Carreira: Gerente, Consultor Empresarial, Empreendedor, Analista de Negócios
+
+**Gestão da Produção Industrial (GPI)**
+- Período: Manhã ou Noite | Duração: 3 anos (6 semestres)
+- Foco: Processos Industriais, Lean Manufacturing, Controle de Qualidade, Logística
+- Tecnologias: SAP, ERP, Lean, Six Sigma, PDCA
+- Carreira: Gerente de Produção, Engenheiro de Processos, Supervisor
+
+**Design de Produto**
+- Período: Manhã | Duração: 3 anos
+- Foco: Prototipagem, Modelagem 3D, Design Industrial, Ergonomia
+- Ferramentas: AutoCAD, Fusion 360, Solidworks, Figma
+- Carreira: Designer Industrial, Product Manager, UX/UI Designer
+
+**Comércio Exterior (COMEX)**
+- Período: Tarde/Noite | Duração: 3 anos
+- Foco: Importação, Exportação, Câmbio, Logística Internacional
+- Carreira: Especialista em Comércio Exterior, Gestor de Logística
+
+═══════════════════════════════════════════
+
+2️⃣ **EDUCAÇÃO E ACADÊMICO:**
+
+**Ingresso:**
+- Processo: Vestibular (2x ao ano - 1º e 2º semestres)
+- Site: www.vestibularfatec.com.br
+- Teste: Múltipla escolha + redação (presencial)
+- Isenção: Disponível para baixa renda (períodos específicos)
+- Sistema de Pontos: +10% bônus escola pública, +3% afrodescendentes
+
+**Informações Académicas:**
+- A Fatec é **100% gratuita** - só há taxa na inscrição do vestibular
+- Semestres: 6 semestres (3 anos)
+- Aulas presenciais (exceto Gestão Empresarial com opção EaD)
+- Avaliação por notas e projetos práticos
+
+**Dificuldades Comuns:**
+- Disciplinas com alto rigor (Álgebra Linear, Engenharia de Software, Estrutura de Dados)
+- Demanda de tempo e atividades
+- Comunicação entre professores
+
+═══════════════════════════════════════════
+
+3️⃣ **EMPREGOS E OPORTUNIDADES:**
+
+**Mercado de Trabalho:**
+- Demanda alta para: Desenvolvedores Full-Stack, Data Scientists, Product Managers
+- Salários iniciais (2024): Dev Jr R$ 3-4.5k, Data Jr R$ 4-5.5k, Gestão Jr R$ 3.5-4.5k
+- Empresas que contratam: Tech startups, Multinacionais, Empresas de consultoria, Bancos
+
+**Networking:**
+- LinkedIn é essencial - siga a página oficial da Fatec
+- Eventos de recrutamento durante o semestre
+- Professores atuantes no mercado oferecem mentoria
+- Projetos práticos com empresas reais
+
+**Estágios:**
+- Geralmente iniciado a partir do 3º semestre
+- Muitos alunos conseguem bolsa de estágio
+- Networking frequente com recrutadores
+
+═══════════════════════════════════════════
+
+4️⃣ **SEGURANÇA (Dicas Essenciais):**
+
+**Segurança de Dados Pessoais:**
+- Nunca compartilhe sua senha com ninguém, nem mesmo com suporte
+- Use senhas fortes: +8 caracteres, maiúsculas, números, símbolos
+- Ative autenticação de dois fatores (2FA) quando disponível
+
+**Segurança Online:**
+- Desconfie de links suspeitos (phishing) - não clique
+- Não abra anexos de emails desconhecidos
+- Mantenha antivírus/antimalware atualizado
+- Use Wi-Fi público com VPN
+
+**Segurança Acadêmica:**
+- Proteja seus trabalhos e projetos (armazene em nuvem segura)
+- Não compartilhe credenciais de acesso ao sistema da Fatec
+- Denuncie atividades suspeitas à TI
+
+**Dentro da Fatec:**
+- Crachá sempre visível
+- Não deixe computadores ou pertences desatendidos
+- Reporte comportamentos suspeitos
+
+═══════════════════════════════════════════
+
+5️⃣ **CULTURA E COMUNIDADE:**
+
+**Eventos:**
+- Semana da Tecnologia (palestras, workshops, hackathons)
+- Competições de programação (Code Challenges)
+- Café com Empresas (networking)
+- Festas de integração entre semestres
+- Palestras com profissionais da área
+
+**Clubes e Grupos:**
+- Centro Acadêmico (centro de representação dos alunos)
+- Grupos de interesse: programação, games, dados, design
+- Grupos de estudo por disciplina
+
+**Cultura Institucional:**
+- Ambiente colaborativo e inovador
+- Diversidade de gênero e origem
+- Foco em projeto prático e real
+- Mentoria entre alunos (mais velhos ajudam iniciantes)
+
+**Bem-estar:**
+- Cantina com refeições subsidiadas
+- Biblioteca com acervo técnico
+- Laboratórios modernos de informática
+- Espaços para convivência
+
+═══════════════════════════════════════════
+
+6️⃣ **INFORMAÇÕES DE CONTATO:**
+
+📍 **Endereço:** Rua Nelson Raineri, 700 - Bairro do Lageado, Cotia - SP, CEP 06702-155
+📞 **Telefone:** (11) 4616-3284
+📧 **Email Acadêmico:** f270acad@cps.sp.gov.br
+🌐 **Site:** https://fateccotia.cps.sp.gov.br
+🎓 **Vestibular:** www.vestibularfatec.com.br
+
+═══════════════════════════════════════════
+
+DIRECTRIZES DE RESPOSTA:
+- Sempre relacione a resposta ao contexto do usuário
+- Ofereça exemplos práticos quando possível
+- Sugira cursos ou disciplinas baseado no interesse mencionado
+- Se não souber algo específico, seja honesto: "Não tenho essa informação no momento"
+- Termine sempre com uma pergunta de acompanhamento
+- Use formatação clara (bold, emojis, listas)
+- Respeite a intenção detectada (${intent})
+
+Sua resposta deve ser amigável, informativa e sempre incentivadora!`;
+
       const response = await fetch(API_CONFIG.url, {
         method: 'POST',
         headers: {
@@ -133,52 +338,23 @@ export default function ChatbotModal({ visible, onClose }: ChatbotModalProps) {
           messages: [
             {
               role: 'system',
-              content: `Você é EduAssist, assistente de orientação educacional da FATEC.
-Suas funções:
-
-Recomendar cursos conforme interesses, habilidades e objetivos profissionais.
-
-Explicar áreas de estudo, mercado de trabalho e caminhos de carreira.
-
-Orientar sobre ingresso na FATEC e processo seletivo.
-
-Responder apenas sobre educação, cursos, carreira e informações acadêmicas.
-
-Cursos disponíveis:
-
-Ciência de Dados: Python, estatística, machine learning, análise de dados.
-
-Comércio Exterior: logística internacional, importação/exportação, câmbio.
-
-Desenvolvimento de Software Multiplataforma: web/mobile/desktop, JS, React Native, APIs.
-
-Design de Produto: modelagem 3D, prototipagem, design industrial.
-
-Gestão da Produção Industrial: Lean, Six Sigma, qualidade, automação.
-
-Gestão Empresarial: estratégia, finanças, marketing, liderança.
-
-Diretrizes de resposta:
-
-Seja claro, útil e encorajador.
-
-Sempre que possível, ofereça níveis (iniciante/intermediário/avançado) e modalidades (online/presencial/híbrido).
-
-Não trate de assuntos fora do escopo educacional.`
+              content: systemPrompt
             },
             ...chatHistory,
             {
               role: 'user',
               content: inputText.trim()
             }
-          ]
+          ],
+          temperature: 0.7,
+          max_tokens: 1024,
         })
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Erro da API:', response.status, errorText);
-        throw new Error(`Erro na API: ${response.status} - ${errorText}`);
+        throw new Error(`Erro na API: ${response.status}`);
       }
 
       const data = await response.json();
@@ -193,7 +369,6 @@ Não trate de assuntos fora do escopo educacional.`
 
         setMessages((prev) => [...prev, botMessage]);
       } else {
-        console.error('Resposta inesperada:', data);
         throw new Error('Resposta inesperada da API');
       }
     } catch (error) {
@@ -201,7 +376,7 @@ Não trate de assuntos fora do escopo educacional.`
 
       const errorMessage: Message = {
         id: Date.now() + 1,
-        text: 'Desculpe, estou com dificuldades técnicas no momento. Por favor, tente novamente mais tarde.',
+        text: '❌ Desculpe, estou com dificuldades técnicas. Tente novamente em alguns momentos.',
         isUser: false,
         timestamp: new Date(),
       };
@@ -210,11 +385,7 @@ Não trate de assuntos fora do escopo educacional.`
 
       if (error instanceof Error) {
         if (error.message.includes('401')) {
-          Alert.alert('Erro de Autenticação', 'Chave da API inválida. Verifique as configurações.');
-        } else if (error.message.includes('404')) {
-          Alert.alert('Erro de Conexão', 'Endpoint não encontrado. Verifique a URL da API.');
-        } else {
-          Alert.alert('Erro', error.message);
+          Alert.alert('⚠️ Erro', 'Chave da API inválida. Verifique as configurações.');
         }
       }
     } finally {
@@ -226,7 +397,7 @@ Não trate de assuntos fora do escopo educacional.`
     setMessages([
       {
         id: 1,
-        text: 'Olá! Sou o EduAssist, seu assistente para recomendação de cursos. Posso ajudar você a encontrar cursos baseados em seus interesses, objetivos de carreira ou áreas de estudo. Por onde gostaria de começar?',
+        text: 'Olá! 👋 Sou o EduAssist, seu assistente inteligente sobre a Fatec Cotia. Posso te ajudar com:\n\n📚 **Cursos** - informações detalhadas\n🎓 **Educação** - orientação acadêmica\n💼 **Empregos** - oportunidades de carreira\n🛡️ **Segurança** - dicas e políticas\n🎭 **Cultura** - eventos e comunidade\n\nPor onde gostaria de começar?',
         isUser: false,
         timestamp: new Date(),
       },
@@ -240,11 +411,14 @@ Não trate de assuntos fora do escopo educacional.`
     });
   };
 
+  // Quick Actions melhoradas por categoria
   const quickActions = [
-    'Cursos de programação',
-    'Habilidades em demanda',
-    'Cursos gratuitos',
-    'Mudança de carreira',
+    '📚 Qual curso escolher?',
+    '💼 Oportunidades de emprego',
+    '🛡️ Como proteger dados?',
+    '🎭 Eventos na Fatec',
+    '🎓 Como ingressar?',
+    '📞 Informações de contato',
   ];
 
   const renderMessage = ({ item }: { item: Message }) => (
@@ -310,8 +484,8 @@ Não trate de assuntos fora do escopo educacional.`
             >
               <View style={styles.headerContent}>
                 <View style={styles.headerInfo}>
-                  <Text style={styles.title}>EduAssist - Assistente IA</Text>
-                  <Text style={styles.subtitle}>📚 Online • Educação</Text>
+                  <Text style={styles.title}>EduAssist - IA</Text>
+                  <Text style={styles.subtitle}>🎓 Fatec Cotia • Online</Text>
                 </View>
 
                 <View style={styles.headerActions}>
@@ -363,7 +537,7 @@ Não trate de assuntos fora do escopo educacional.`
                     style={[styles.textInput, { color: theme.text }]}
                     value={inputText}
                     onChangeText={setInputText}
-                    placeholder="Digite sua mensagem..."
+                    placeholder="Faça sua pergunta..."
                     placeholderTextColor={theme.textSecondary}
                     multiline
                     maxLength={500}
@@ -401,7 +575,7 @@ Não trate de assuntos fora do escopo educacional.`
               {/* Quick Actions */}
               <View style={styles.quickActions}>
                 <Text style={[styles.quickActionsTitle, { color: theme.textSecondary }]}>
-                  Perguntas rápidas:
+                  ⚡ Perguntas rápidas:
                 </Text>
                 <View style={styles.quickActionsRow}>
                   {quickActions.map((action, index) => (
@@ -418,6 +592,7 @@ Não trate de assuntos fora do escopo educacional.`
                           styles.quickActionText,
                           { color: theme.text },
                         ]}
+                        numberOfLines={1}
                       >
                         {action}
                       </Text>
@@ -506,7 +681,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   messageBubble: {
-    maxWidth: '80%',
+    maxWidth: '85%',
     padding: 12,
     borderRadius: 16,
     shadowColor: '#000',
@@ -578,6 +753,7 @@ const styles = StyleSheet.create({
   quickActionsTitle: {
     fontSize: 12,
     marginBottom: 8,
+    fontWeight: '600',
   },
   quickActionsRow: {
     flexDirection: 'row',
@@ -590,8 +766,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+    maxWidth: '48%',
   },
   quickActionText: {
     fontSize: 12,
+    fontWeight: '500',
   },
 });
