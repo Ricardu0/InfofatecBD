@@ -1,4 +1,3 @@
-// frontend/components/ChatbotModal.tsx - VERSÃO ATUALIZADA
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -29,23 +28,6 @@ interface ChatbotModalProps {
   onClose: () => void;
 }
 
-// ✅ Configuração segura - URL do backend
-const getBackendUrl = () => {
-  // Em desenvolvimento local
-  if (__DEV__) {
-    return Platform.select({
-      android: 'http://10.0.2.2:3001',
-      ios: 'http://localhost:3001',
-      default: 'http://localhost:3001'
-    });
-  }
-  
-  // Em produção - use a variável de ambiente
-  return process.env.EXPO_PUBLIC_BACKEND_URL || 'https://seu-backend.render.com';
-};
-
-const BACKEND_URL = getBackendUrl();
-
 export default function ChatbotModal({ visible, onClose }: ChatbotModalProps) {
   const { isDark, theme, fadeAnim } = useTheme();
   const [messages, setMessages] = useState<Message[]>([
@@ -61,6 +43,14 @@ export default function ChatbotModal({ visible, onClose }: ChatbotModalProps) {
   const flatListRef = useRef<FlatList>(null);
   const slideAnim = useRef(new Animated.Value(300)).current;
 
+  // Configuração da API
+  const API_CONFIG = {
+    url: process.env.EXPO_PUBLIC_OPENROUTER_URL || 'https://openrouter.ai/api/v1/chat/completions',
+    apiKey: process.env.EXPO_PUBLIC_OPENROUTER_API_KEY || '',
+    model: process.env.EXPO_PUBLIC_OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct:free',
+  };
+
+  // Cores animadas
   const animatedColors = {
     container: fadeAnim.interpolate({
       inputRange: [0, 1],
@@ -107,25 +97,36 @@ export default function ChatbotModal({ visible, onClose }: ChatbotModalProps) {
     scrollToBottom();
   }, [messages]);
 
-  // Sistema de Intents
+  // Sistema de Intents (categorização inteligente)
   const detectIntent = (userMessage: string): string => {
     const lowercaseMsg = userMessage.toLowerCase();
 
+    // Cursos
     if (/curso|graduação|estudo|programação|desenvolvimento|dados|design|gestão|comércio/i.test(lowercaseMsg)) {
       return 'cursos';
     }
+
+    // Educação e Acadêmico
     if (/vestibular|inscrição|ingresso|disciplina|professor|nota|semestre|matéria|avaliação/i.test(lowercaseMsg)) {
       return 'educacao';
     }
+
+    // Empregos e Carreira
     if (/emprego|carreira|trabalho|profissão|mercado|salário|oportunidade|estágio|linkedin/i.test(lowercaseMsg)) {
       return 'empregos';
     }
+
+    // Segurança
     if (/segurança|senha|login|autenticação|privacidade|proteção|dados|vírus|malware|safe|antivírus/i.test(lowercaseMsg)) {
       return 'seguranca';
     }
+
+    // Cultura e Comunidade
     if (/evento|festa|comunidade|clube|grupo|amigo|atividade|cultural|show|palestra/i.test(lowercaseMsg)) {
       return 'cultura';
     }
+
+    // Informações Gerais
     if (/contato|telefone|endereço|horário|localização|como chegar|email/i.test(lowercaseMsg)) {
       return 'info_geral';
     }
@@ -150,7 +151,7 @@ export default function ChatbotModal({ visible, onClose }: ChatbotModalProps) {
     try {
       const intent = detectIntent(inputText);
 
-      // Preparar histórico
+      // Preparar o histórico de mensagens
       const chatHistory = messages.map(msg => ({
         role: msg.isUser ? 'user' : 'assistant',
         content: msg.text
@@ -223,6 +224,11 @@ ESCOPO DE ATUAÇÃO - RESPONDA SOBRE TODOS ESSES ASPECTOS:
 - Aulas presenciais (exceto Gestão Empresarial com opção EaD)
 - Avaliação por notas e projetos práticos
 
+**Dificuldades Comuns:**
+- Disciplinas com alto rigor (Álgebra Linear, Engenharia de Software, Estrutura de Dados)
+- Demanda de tempo e atividades
+- Comunicação entre professores
+
 ═══════════════════════════════════════════
 
 3️⃣ **EMPREGOS E OPORTUNIDADES:**
@@ -232,14 +238,41 @@ ESCOPO DE ATUAÇÃO - RESPONDA SOBRE TODOS ESSES ASPECTOS:
 - Salários iniciais (2024): Dev Jr R$ 3-4.5k, Data Jr R$ 4-5.5k, Gestão Jr R$ 3.5-4.5k
 - Empresas que contratam: Tech startups, Multinacionais, Empresas de consultoria, Bancos
 
+**Networking:**
+- LinkedIn é essencial - siga a página oficial da Fatec
+- Eventos de recrutamento durante o semestre
+- Professores atuantes no mercado oferecem mentoria
+- Projetos práticos com empresas reais
+
+**Estágios:**
+- Geralmente iniciado a partir do 3º semestre
+- Muitos alunos conseguem bolsa de estágio
+- Networking frequente com recrutadores
+
 ═══════════════════════════════════════════
 
 4️⃣ **SEGURANÇA (Dicas Essenciais):**
 
 **Segurança de Dados Pessoais:**
-- Nunca compartilhe sua senha com ninguém
+- Nunca compartilhe sua senha com ninguém, nem mesmo com suporte
 - Use senhas fortes: +8 caracteres, maiúsculas, números, símbolos
-- Ative autenticação de dois fatores (2FA)
+- Ative autenticação de dois fatores (2FA) quando disponível
+
+**Segurança Online:**
+- Desconfie de links suspeitos (phishing) - não clique
+- Não abra anexos de emails desconhecidos
+- Mantenha antivírus/antimalware atualizado
+- Use Wi-Fi público com VPN
+
+**Segurança Acadêmica:**
+- Proteja seus trabalhos e projetos (armazene em nuvem segura)
+- Não compartilhe credenciais de acesso ao sistema da Fatec
+- Denuncie atividades suspeitas à TI
+
+**Dentro da Fatec:**
+- Crachá sempre visível
+- Não deixe computadores ou pertences desatendidos
+- Reporte comportamentos suspeitos
 
 ═══════════════════════════════════════════
 
@@ -249,15 +282,35 @@ ESCOPO DE ATUAÇÃO - RESPONDA SOBRE TODOS ESSES ASPECTOS:
 - Semana da Tecnologia (palestras, workshops, hackathons)
 - Competições de programação (Code Challenges)
 - Café com Empresas (networking)
+- Festas de integração entre semestres
+- Palestras com profissionais da área
+
+**Clubes e Grupos:**
+- Centro Acadêmico (centro de representação dos alunos)
+- Grupos de interesse: programação, games, dados, design
+- Grupos de estudo por disciplina
+
+**Cultura Institucional:**
+- Ambiente colaborativo e inovador
+- Diversidade de gênero e origem
+- Foco em projeto prático e real
+- Mentoria entre alunos (mais velhos ajudam iniciantes)
+
+**Bem-estar:**
+- Cantina com refeições subsidiadas
+- Biblioteca com acervo técnico
+- Laboratórios modernos de informática
+- Espaços para convivência
 
 ═══════════════════════════════════════════
 
 6️⃣ **INFORMAÇÕES DE CONTATO:**
 
-📍 **Endereço:** Rua Nelson Raineri, 700 - Bairro do Lageado, Cotia - SP
+📍 **Endereço:** Rua Nelson Raineri, 700 - Bairro do Lageado, Cotia - SP, CEP 06702-155
 📞 **Telefone:** (11) 4616-3284
-📧 **Email:** f270acad@cps.sp.gov.br
+📧 **Email Acadêmico:** f270acad@cps.sp.gov.br
 🌐 **Site:** https://fateccotia.cps.sp.gov.br
+🎓 **Vestibular:** www.vestibularfatec.com.br
 
 ═══════════════════════════════════════════
 
@@ -265,34 +318,43 @@ DIRECTRIZES DE RESPOSTA:
 - Sempre relacione a resposta ao contexto do usuário
 - Ofereça exemplos práticos quando possível
 - Sugira cursos ou disciplinas baseado no interesse mencionado
-- Se não souber algo específico, seja honesto
+- Se não souber algo específico, seja honesto: "Não tenho essa informação no momento"
 - Termine sempre com uma pergunta de acompanhamento
 - Use formatação clara (bold, emojis, listas)
 - Respeite a intenção detectada (${intent})
 
 Sua resposta deve ser amigável, informativa e sempre incentivadora!`;
 
-      // ✅ Chamada ao BACKEND (não diretamente à API)
-      const response = await fetch(`${BACKEND_URL}/api/chat`, {
+      const response = await fetch(API_CONFIG.url, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${API_CONFIG.apiKey}`,
+          'HTTP-Referer': 'http://localhost:8081',
+          'X-Title': 'EduAssist App',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          model: API_CONFIG.model,
           messages: [
-            { role: 'system', content: systemPrompt },
+            {
+              role: 'system',
+              content: systemPrompt
+            },
             ...chatHistory,
-            { role: 'user', content: inputText.trim() }
+            {
+              role: 'user',
+              content: inputText.trim()
+            }
           ],
           temperature: 0.7,
-          max_tokens: 1024
+          max_tokens: 1024,
         })
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Erro do backend:', response.status, errorText);
-        throw new Error(`Erro: ${response.status}`);
+        console.error('Erro da API:', response.status, errorText);
+        throw new Error(`Erro na API: ${response.status}`);
       }
 
       const data = await response.json();
@@ -307,10 +369,10 @@ Sua resposta deve ser amigável, informativa e sempre incentivadora!`;
 
         setMessages((prev) => [...prev, botMessage]);
       } else {
-        throw new Error('Resposta inesperada');
+        throw new Error('Resposta inesperada da API');
       }
     } catch (error) {
-      console.error('❌ Erro ao enviar mensagem:', error);
+      console.error('Erro ao enviar mensagem:', error);
 
       const errorMessage: Message = {
         id: Date.now() + 1,
@@ -320,6 +382,12 @@ Sua resposta deve ser amigável, informativa e sempre incentivadora!`;
       };
 
       setMessages((prev) => [...prev, errorMessage]);
+
+      if (error instanceof Error) {
+        if (error.message.includes('401')) {
+          Alert.alert('⚠️ Erro', 'Chave da API inválida. Verifique as configurações.');
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -329,7 +397,7 @@ Sua resposta deve ser amigável, informativa e sempre incentivadora!`;
     setMessages([
       {
         id: 1,
-        text: 'Olá! 👋 Sou o EduAssist, seu assistente inteligente sobre a Fatec Cotia. Posso te ajudar com:\n\n📚 **Cursos**\n🎓 **Educação**\n💼 **Empregos**\n🛡️ **Segurança**\n🎭 **Cultura**\n\nPor onde gostaria de começar?',
+        text: 'Olá! 👋 Sou o EduAssist, seu assistente inteligente sobre a Fatec Cotia. Posso te ajudar com:\n\n📚 **Cursos** - informações detalhadas\n🎓 **Educação** - orientação acadêmica\n💼 **Empregos** - oportunidades de carreira\n🛡️ **Segurança** - dicas e políticas\n🎭 **Cultura** - eventos e comunidade\n\nPor onde gostaria de começar?',
         isUser: false,
         timestamp: new Date(),
       },
@@ -343,6 +411,7 @@ Sua resposta deve ser amigável, informativa e sempre incentivadora!`;
     });
   };
 
+  // Quick Actions melhoradas por categoria
   const quickActions = [
     '📚 Qual curso escolher?',
     '💼 Oportunidades de emprego',
